@@ -1,0 +1,42 @@
+{
+  "name": "plyr-helper",
+  "version": "1.0.0",
+  "description": "A lightweight helper package that enhances video embedding using the Plyr.io media player",
+  "main": "dist/plyr-helper.js",
+  "module": "dist/plyr-helper.esm.js",
+  "browser": "dist/plyr-helper.min.js",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Druhin13/plyr-helper.git"
+  },
+  "keywords": [
+    "plyr",
+    "video",
+    "player",
+    "youtube",
+    "vimeo",
+    "html5-video"
+  ],
+  "author": "Druhin Tarafder",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Druhin13/plyr-helper/issues"
+  },
+  "homepage": "https://github.com/Druhin13/plyr-helper#readme",
+  "devDependencies": {
+    "@rollup/plugin-terser": "^0.4.4",
+    "rollup": "^4.37.0"
+  },
+  "peerDependencies": {
+    "plyr": "^3.7.8"
+  }
+}
