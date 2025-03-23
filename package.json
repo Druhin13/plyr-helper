@@ -1,6 +1,6 @@
 {
   "name": "plyr-helper",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A lightweight helper package that enhances video embedding using the Plyr.io media player",
   "main": "dist/plyr-helper.js",
   "module": "dist/plyr-helper.esm.js",
