@@ -1,5 +1,5 @@
 /*!
- * plyr-helper v1.0.0
+ * plyr-helper v1.0.1
  * A lightweight helper package that enhances video embedding using the Plyr.io media player
  * (c) 2025 Druhin Tarafder
  * Released under the MIT License
@@ -26,6 +26,32 @@
       script.src = url;
       script.onload = callback;
       document.head.appendChild(script);
+    }
+
+    // Helper function to process boolean attributes with default values
+    function getBooleanAttribute(element, attributeName, defaultValue = false) {
+      if (!element.hasAttribute(attributeName)) {
+        return defaultValue;
+      }
+
+      const value = element.getAttribute(attributeName);
+      // If attribute exists but has no explicit value, treat as true
+      if (value === "" || value === attributeName) {
+        return true;
+      }
+
+      // Otherwise, check for explicit "true" value
+      return value === "true";
+    }
+
+    // Helper function for non-boolean attributes with default values
+    function getAttribute(element, attributeName, defaultValue = null) {
+      if (!element.hasAttribute(attributeName)) {
+        return defaultValue;
+      }
+
+      const value = element.getAttribute(attributeName);
+      return value !== "" ? value : defaultValue;
     }
 
     // Video type detection and ID extraction
@@ -346,24 +372,38 @@
       var images = document.querySelectorAll('img[data-dt-video="true"]');
 
       images.forEach(function (img, index) {
-        // Get attributes from the image
-        img.getAttribute("data-dt-video-url");
-        img.getAttribute("data-dt-video-controls") === "true";
-        img.getAttribute("data-dt-video-mute") === "true";
+        // Get attributes from the image with default values
+        // Default URL provided if none specified
+        getAttribute(
+          img,
+          "data-dt-video-url",
+          "https://youtu.be/ivzDSDsOEOI"
+        );
+        getBooleanAttribute(img, "data-dt-video-controls");
+        getBooleanAttribute(img, "data-dt-video-mute");
         parseFloat(img.getAttribute("data-dt-video-playback-rate")) || 1;
-        img.getAttribute("data-dt-video-loop") === "true";
+        getBooleanAttribute(img, "data-dt-video-loop");
         var poster = img.getAttribute("src");
-        var autoplay = img.getAttribute("data-dt-video-autoplay") === "true";
+        var autoplay = getBooleanAttribute(img, "data-dt-video-autoplay");
 
-        // New options
-        var themeColor = img.getAttribute("data-dt-video-theme-color");
+        // New options with default theme color
+        var themeColor = getAttribute(
+          img,
+          "data-dt-video-theme-color",
+          "#131313"
+        );
         img.getAttribute("data-dt-video-custom-controls");
         parseFloat(img.getAttribute("data-dt-video-start-time")) || 0;
+
+        // Handle end time - check if attribute exists but has no value
+        img.hasAttribute("data-dt-video-end-time") &&
+          img.getAttribute("data-dt-video-end-time") === "";
         parseFloat(img.getAttribute("data-dt-video-end-time")) || 0;
+
         img.getAttribute("data-dt-video-quality") || "default";
-        img.getAttribute("data-dt-video-pause-on-blur") === "true";
-        img.getAttribute("data-dt-video-play-on-hover") === "true";
-        var lazyLoad = img.getAttribute("data-dt-video-lazy-load") === "true";
+        getBooleanAttribute(img, "data-dt-video-pause-on-blur");
+        getBooleanAttribute(img, "data-dt-video-play-on-hover");
+        var lazyLoad = getBooleanAttribute(img, "data-dt-video-lazy-load");
 
         // Create a wrapper element that will inherit all styles
         var wrapper = document.createElement("div");
@@ -467,27 +507,39 @@
       });
 
       function initializeSingleVideo(img, wrapper, referenceImg) {
-        // Get attributes from the image
-        var videoUrl = img.getAttribute("data-dt-video-url");
-        var controls = img.getAttribute("data-dt-video-controls") === "true";
-        var mute = img.getAttribute("data-dt-video-mute") === "true";
+        // Get attributes from the image with default values
+        var videoUrl = getAttribute(
+          img,
+          "data-dt-video-url",
+          "https://youtu.be/ivzDSDsOEOI"
+        );
+        var controls = getBooleanAttribute(img, "data-dt-video-controls");
+        var mute = getBooleanAttribute(img, "data-dt-video-mute");
         var playbackRate =
           parseFloat(img.getAttribute("data-dt-video-playback-rate")) || 1;
-        var loop = img.getAttribute("data-dt-video-loop") === "true";
+        var loop = getBooleanAttribute(img, "data-dt-video-loop");
         var poster = img.getAttribute("src");
-        var autoplay = img.getAttribute("data-dt-video-autoplay") === "true";
+        var autoplay = getBooleanAttribute(img, "data-dt-video-autoplay");
 
         // New options
-        var themeColor = img.getAttribute("data-dt-video-theme-color");
+        var themeColor = getAttribute(
+          img,
+          "data-dt-video-theme-color",
+          "#131313"
+        );
         var customControlsStr = img.getAttribute("data-dt-video-custom-controls");
         var startTime =
           parseFloat(img.getAttribute("data-dt-video-start-time")) || 0;
+
+        // Check for empty end time attribute
+        var hasEmptyEndTime =
+          img.hasAttribute("data-dt-video-end-time") &&
+          img.getAttribute("data-dt-video-end-time") === "";
         var endTime = parseFloat(img.getAttribute("data-dt-video-end-time")) || 0;
+
         var quality = img.getAttribute("data-dt-video-quality") || "default";
-        var pauseOnBlur =
-          img.getAttribute("data-dt-video-pause-on-blur") === "true";
-        var playOnHover =
-          img.getAttribute("data-dt-video-play-on-hover") === "true";
+        var pauseOnBlur = getBooleanAttribute(img, "data-dt-video-pause-on-blur");
+        var playOnHover = getBooleanAttribute(img, "data-dt-video-play-on-hover");
 
         // For autoplay to work reliably in most browsers, we need muted audio
         if (autoplay) {
@@ -510,8 +562,8 @@
           try {
             rgbColor = hexToRgb(themeColor.replace("#", ""));
           } catch (e) {
-            // Default to blue if parsing fails
-            rgbColor = { r: 0, g: 138, b: 255 };
+            // Default to dark gray if parsing fails
+            rgbColor = { r: 19, g: 19, b: 19 }; // #131313
           }
 
           // Apply theme color styles
@@ -746,6 +798,7 @@
           videoType: videoData.type,
           startTime: startTime,
           endTime: endTime,
+          hasEmptyEndTime: hasEmptyEndTime,
           quality: quality,
         });
 
@@ -904,17 +957,96 @@
           }
 
           // Handle end time for HTML5 video
-          if (videoData.type === "video" && endTime > 0) {
-            player.on("timeupdate", function () {
-              if (player.currentTime >= endTime) {
-                if (loop) {
-                  player.currentTime = startTime;
-                  player.play();
-                } else {
-                  player.pause();
+          if (videoData.type === "video" && (endTime > 0 || hasEmptyEndTime)) {
+            // For HTML5 video, we can get the duration
+            if (hasEmptyEndTime) {
+              // Use the actual video duration as the end time
+              endTime = player.duration || 0;
+            }
+
+            if (endTime > 0) {
+              player.on("timeupdate", function () {
+                if (player.currentTime >= endTime) {
+                  if (loop) {
+                    player.currentTime = startTime;
+                    player.play();
+                  } else {
+                    player.pause();
+                  }
                 }
+              });
+            }
+          }
+
+          // Dynamic end time handling for YouTube videos
+          if (videoData.type === "youtube" && hasEmptyEndTime) {
+            // The YouTube API is wrapped by Plyr
+            // For YouTube videos, we need to use the API to get the duration
+            if (player.embed && typeof player.embed.getDuration === "function") {
+              try {
+                // Wait a bit for YouTube API to initialize
+                setTimeout(() => {
+                  const duration = player.embed.getDuration();
+                  if (duration) {
+                    // Update plyr YouTube options with end time
+                    player.config.youtube.end = Math.floor(duration);
+
+                    // Update stored end time
+                    endTime = duration;
+
+                    // Reload the player to apply the new end time
+                    const currentTime = player.currentTime;
+                    player.source = {
+                      type: "video",
+                      sources: [
+                        {
+                          src: videoUrl,
+                          provider: "youtube",
+                        },
+                      ],
+                    };
+
+                    // Restore position and play state
+                    player.on("ready", () => {
+                      player.currentTime = currentTime;
+                      if (!player.paused) player.play();
+                    });
+                  }
+                }, 1000);
+              } catch (e) {
+                console.warn("Could not get YouTube video duration:", e);
               }
-            });
+            }
+          }
+
+          // Dynamic end time handling for Vimeo videos
+          if (videoData.type === "vimeo" && hasEmptyEndTime) {
+            if (player.embed && typeof player.embed.getDuration === "function") {
+              try {
+                // Wait a bit for Vimeo API to initialize
+                setTimeout(() => {
+                  player.embed.getDuration().then((duration) => {
+                    if (duration) {
+                      // For Vimeo, we need to handle this with timeupdate events
+                      endTime = duration;
+
+                      player.on("timeupdate", function () {
+                        if (player.currentTime >= endTime) {
+                          if (loop) {
+                            player.currentTime = startTime;
+                            player.play();
+                          } else {
+                            player.pause();
+                          }
+                        }
+                      });
+                    }
+                  });
+                }, 1000);
+              } catch (e) {
+                console.warn("Could not get Vimeo video duration:", e);
+              }
+            }
           }
 
           // For direct video files, make sure it covers the container
@@ -1020,6 +1152,21 @@
                 plyrWrapper.style.position = "absolute";
                 plyrWrapper.style.top = "0";
                 plyrWrapper.style.left = "0";
+              }
+
+              // If we have an empty end time, set it to the video's duration
+              if (hasEmptyEndTime && videoEl.duration) {
+                endTime = videoEl.duration;
+                player.on("timeupdate", function () {
+                  if (player.currentTime >= endTime) {
+                    if (loop) {
+                      player.currentTime = startTime;
+                      player.play();
+                    } else {
+                      player.pause();
+                    }
+                  }
+                });
               }
             }
           });
