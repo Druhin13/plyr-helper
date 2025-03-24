@@ -17,6 +17,22 @@ document.addEventListener("DOMContentLoaded", function () {
     document.head.appendChild(script);
   }
 
+  // Helper function to process boolean attributes with default values
+  function getBooleanAttribute(element, attributeName, defaultValue = false) {
+    if (!element.hasAttribute(attributeName)) {
+      return defaultValue;
+    }
+
+    const value = element.getAttribute(attributeName);
+    // If attribute exists but has no explicit value, treat as true
+    if (value === "" || value === attributeName) {
+      return true;
+    }
+
+    // Otherwise, check for explicit "true" value
+    return value === "true";
+  }
+
   // Video type detection and ID extraction
   function detectVideoType(url) {
     if (!url) return { type: null, id: null };
@@ -335,15 +351,15 @@ document.addEventListener("DOMContentLoaded", function () {
     var images = document.querySelectorAll('img[data-dt-video="true"]');
 
     images.forEach(function (img, index) {
-      // Get attributes from the image
+      // Get attributes from the image with default values
       var videoUrl = img.getAttribute("data-dt-video-url");
-      var controls = img.getAttribute("data-dt-video-controls") === "true";
-      var mute = img.getAttribute("data-dt-video-mute") === "true";
+      var controls = getBooleanAttribute(img, "data-dt-video-controls");
+      var mute = getBooleanAttribute(img, "data-dt-video-mute");
       var playbackRate =
         parseFloat(img.getAttribute("data-dt-video-playback-rate")) || 1;
-      var loop = img.getAttribute("data-dt-video-loop") === "true";
+      var loop = getBooleanAttribute(img, "data-dt-video-loop");
       var poster = img.getAttribute("src");
-      var autoplay = img.getAttribute("data-dt-video-autoplay") === "true";
+      var autoplay = getBooleanAttribute(img, "data-dt-video-autoplay");
 
       // New options
       var themeColor = img.getAttribute("data-dt-video-theme-color");
@@ -352,11 +368,9 @@ document.addEventListener("DOMContentLoaded", function () {
         parseFloat(img.getAttribute("data-dt-video-start-time")) || 0;
       var endTime = parseFloat(img.getAttribute("data-dt-video-end-time")) || 0;
       var quality = img.getAttribute("data-dt-video-quality") || "default";
-      var pauseOnBlur =
-        img.getAttribute("data-dt-video-pause-on-blur") === "true";
-      var playOnHover =
-        img.getAttribute("data-dt-video-play-on-hover") === "true";
-      var lazyLoad = img.getAttribute("data-dt-video-lazy-load") === "true";
+      var pauseOnBlur = getBooleanAttribute(img, "data-dt-video-pause-on-blur");
+      var playOnHover = getBooleanAttribute(img, "data-dt-video-play-on-hover");
+      var lazyLoad = getBooleanAttribute(img, "data-dt-video-lazy-load");
 
       // For autoplay to work reliably in most browsers, we need muted audio
       if (autoplay) {
@@ -465,15 +479,15 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function initializeSingleVideo(img, wrapper, referenceImg) {
-      // Get attributes from the image
+      // Get attributes from the image with default values
       var videoUrl = img.getAttribute("data-dt-video-url");
-      var controls = img.getAttribute("data-dt-video-controls") === "true";
-      var mute = img.getAttribute("data-dt-video-mute") === "true";
+      var controls = getBooleanAttribute(img, "data-dt-video-controls");
+      var mute = getBooleanAttribute(img, "data-dt-video-mute");
       var playbackRate =
         parseFloat(img.getAttribute("data-dt-video-playback-rate")) || 1;
-      var loop = img.getAttribute("data-dt-video-loop") === "true";
+      var loop = getBooleanAttribute(img, "data-dt-video-loop");
       var poster = img.getAttribute("src");
-      var autoplay = img.getAttribute("data-dt-video-autoplay") === "true";
+      var autoplay = getBooleanAttribute(img, "data-dt-video-autoplay");
 
       // New options
       var themeColor = img.getAttribute("data-dt-video-theme-color");
@@ -482,10 +496,8 @@ document.addEventListener("DOMContentLoaded", function () {
         parseFloat(img.getAttribute("data-dt-video-start-time")) || 0;
       var endTime = parseFloat(img.getAttribute("data-dt-video-end-time")) || 0;
       var quality = img.getAttribute("data-dt-video-quality") || "default";
-      var pauseOnBlur =
-        img.getAttribute("data-dt-video-pause-on-blur") === "true";
-      var playOnHover =
-        img.getAttribute("data-dt-video-play-on-hover") === "true";
+      var pauseOnBlur = getBooleanAttribute(img, "data-dt-video-pause-on-blur");
+      var playOnHover = getBooleanAttribute(img, "data-dt-video-play-on-hover");
 
       // For autoplay to work reliably in most browsers, we need muted audio
       if (autoplay) {
